@@ -2,6 +2,7 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
+<<<<<<< HEAD
 import router from './router'
 
 // 导入 Bootstrap CSS 和 JS
@@ -35,3 +36,7 @@ const toastOptions = {
 app.use(router)
 app.use(Toast, toastOptions)
 app.mount('#app')
+=======
+
+createApp(App).mount('#app')
+>>>>>>> 6e5a34e48eba6954091de76b7fe04de78b5108bc
