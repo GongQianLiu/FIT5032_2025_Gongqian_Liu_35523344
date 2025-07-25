@@ -1,0 +1,32 @@
+{
+  "users": [
+    {
+      "username": "senior1",
+      "password": "123456",
+      "role": "elderly",
+      "id": 1,
+      "createdAt": "2025-07-22T11:35:03.611Z"
+    },
+    {
+      "username": "volunteer1",
+      "password": "123456",
+      "role": "volunteer",
+      "id": 2,
+      "createdAt": "2025-07-22T11:35:03.613Z"
+    },
+    {
+      "username": "GongQianLiu",
+      "password": "Lgq20001027@",
+      "role": "volunteer",
+      "id": 1753184140920,
+      "createdAt": "2025-07-22T11:35:40.920Z"
+    },
+    {
+      "username": "25",
+      "password": "123",
+      "role": "volunteer",
+      "id": 1753184210143,
+      "createdAt": "2025-07-22T11:36:50.143Z"
+    }
+  ]
+}
