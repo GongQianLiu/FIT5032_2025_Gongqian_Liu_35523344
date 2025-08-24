@@ -147,11 +147,20 @@ class OpenStreetMapService {
     return this.currentStyle;
   }
 
-  // Get current location
+  // Get current location with fallback to Melbourne
   async getCurrentLocation() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser'));
+        console.warn('Geolocation not supported, using default Melbourne location');
+        const defaultLocation = { lat: -37.8136, lng: 144.9631 };
+        this.currentLocation = defaultLocation;
+
+        if (this.map) {
+          this.map.setView([defaultLocation.lat, defaultLocation.lng], 13);
+          this.addMarker(defaultLocation, 'Melbourne (Default Location)', 'current');
+        }
+
+        resolve(defaultLocation);
         return;
       }
 
@@ -162,17 +171,31 @@ class OpenStreetMapService {
             lng: position.coords.longitude
           };
           this.currentLocation = location;
-          
+
           // Center map on current location
           if (this.map) {
             this.map.setView([location.lat, location.lng], 15);
             this.addMarker(location, 'Current Location', 'current');
           }
-          
+
           resolve(location);
         },
         (error) => {
-          reject(new Error('Unable to retrieve your location: ' + error.message));
+          console.warn('Geolocation failed:', error.message, '- using default Melbourne location');
+          const defaultLocation = { lat: -37.8136, lng: 144.9631 };
+          this.currentLocation = defaultLocation;
+
+          if (this.map) {
+            this.map.setView([defaultLocation.lat, defaultLocation.lng], 13);
+            this.addMarker(defaultLocation, 'Melbourne (Default Location)', 'current');
+          }
+
+          resolve(defaultLocation);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
         }
       );
     });
