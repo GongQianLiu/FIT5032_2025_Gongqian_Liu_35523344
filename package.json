@@ -1,31 +1,32 @@
 {
-<<<<<<< HEAD
   "name": "old-service",
-=======
-  "name": "gliu-library",
->>>>>>> 6e5a34e48eba6954091de76b7fe04de78b5108bc
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "setup-firebase": "node setup-firebase.js",
+    "deploy": "npm run build && firebase deploy",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:firestore": "firebase deploy --only firestore",
+    "netlify:dev": "netlify dev",
+    "netlify:build": "npm run build",
+    "netlify:deploy": "netlify deploy --prod --dir=dist"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@popperjs/core": "^2.11.8",
-    "body-parser": "^2.2.0",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
     "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
+    "firebase": "^10.14.1",
+    "postmark": "^4.0.5",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1",
     "vue-toastification": "^2.0.0-rc.5"
-=======
-    "vue": "^3.5.17"
->>>>>>> 6e5a34e48eba6954091de76b7fe04de78b5108bc
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",

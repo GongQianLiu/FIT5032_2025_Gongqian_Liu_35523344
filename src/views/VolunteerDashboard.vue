@@ -1,160 +1,82 @@
 <template>
-  <div class="dashboard-container">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container-fluid px-4">
-        <a class="navbar-brand fs-3" href="#">
-          <i class="bi bi-heart-fill me-2"></i>
+  <div class="page-container">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container-fluid">
+        <router-link to="/volunteer-dashboard" class="navbar-brand">
+          <i class="bi bi-heart-fill"></i>
           Evergreen Way
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link active fs-5" href="#">
-                <i class="bi bi-house-fill me-1"></i>Home
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link fs-5" href="#">
-                <i class="bi bi-calendar-event me-1"></i>Schedule
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link fs-5" href="#">
-                <i class="bi bi-chat-dots-fill me-1"></i>Messages
-              </a>
-            </li>
-          </ul>
-          <div class="d-flex align-items-center">
-            <span class="text-light me-3 fs-5">
-              <i class="bi bi-person-circle me-1"></i>
-              {{ currentUser?.username }}
-            </span>
-            <button class="btn btn-outline-light btn-lg" @click="handleLogout">
-              <i class="bi bi-box-arrow-right me-1"></i>
-              Sign Out
-            </button>
-          </div>
+        </router-link>
+        <div class="d-flex">
+          <router-link to="/volunteer-home" class="btn btn-outline-light me-3">
+            <i class="bi bi-house"></i>
+            Home
+          </router-link>
+          <router-link to="/service-map" class="btn btn-outline-light me-3">
+            <i class="bi bi-map"></i>
+            Service Map
+          </router-link>
+          <router-link to="/volunteer-email" class="btn btn-outline-light me-3">
+            <i class="bi bi-envelope"></i>
+            Send Email
+          </router-link>
+          <router-link to="/ai-assistant" class="btn btn-outline-light me-3">
+            <i class="bi bi-robot"></i>
+            AI Assistant
+          </router-link>
+          <button class="btn btn-outline-light" @click="logout">
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+          </button>
         </div>
       </div>
     </nav>
 
-    <div class="container-fluid dashboard-content">
-      <div class="row g-4 py-4 px-3 px-lg-4">
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body p-4">
-              <div class="d-flex align-items-center mb-3">
-                <div class="feature-icon bg-primary bg-gradient text-white rounded-3 me-3">
-                  <i class="bi bi-calendar2-check"></i>
-                </div>
-                <h4 class="card-title mb-0">My Services</h4>
-              </div>
-              <p class="card-text text-muted fs-5">Manage your service schedule and arrangements</p>
-              <button class="btn btn-outline-primary btn-lg">
-                <i class="bi bi-arrow-right me-1"></i>View Details
-              </button>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <div class="content-wrapper">
+          <div class="main-column">
+            <div class="welcome-banner">
+              <h2>Welcome Back!</h2>
+              <p>Thank you for your dedication to helping our elderly community.</p>
             </div>
-          </div>
-        </div>
+            
+            <!-- Available Tasks Table -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="mb-0">Available Tasks</h3>
+                <p class="text-muted mb-0">Browse and accept available help requests</p>
+              </div>
+              <div class="card-body">
+                <DataTable
+                  :data="availableTasks"
+                  :columns="availableTasksColumns"
+                  :filterColumns="availableTasksFilterColumns"
+                  @accept-task="acceptTask"
+                />
+              </div>
+            </div>
 
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body p-4">
-              <div class="d-flex align-items-center mb-3">
-                <div class="feature-icon bg-success bg-gradient text-white rounded-3 me-3">
-                  <i class="bi bi-person-plus"></i>
-                </div>
-                <h4 class="card-title mb-0">Service Requests</h4>
+            <!-- My Accepted Tasks Table -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="mb-0">My Accepted Tasks</h3>
+                <p class="text-muted mb-0">Manage your accepted help requests</p>
               </div>
-              <p class="card-text text-muted fs-5">View service requests from seniors</p>
-              <button class="btn btn-outline-success btn-lg">
-                <i class="bi bi-arrow-right me-1"></i>Process Requests
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body p-4">
-              <div class="d-flex align-items-center mb-3">
-                <div class="feature-icon bg-info bg-gradient text-white rounded-3 me-3">
-                  <i class="bi bi-graph-up"></i>
-                </div>
-                <h4 class="card-title mb-0">Service Statistics</h4>
-              </div>
-              <p class="card-text text-muted fs-5">View your service hours and ratings</p>
-              <button class="btn btn-outline-info btn-lg">
-                <i class="bi bi-arrow-right me-1"></i>View Stats
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12 col-lg-8">
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 p-4">
-              <h4 class="mb-0">Pending Service Requests</h4>
-            </div>
-            <div class="card-body p-0">
-              <div class="service-request d-flex align-items-center p-4 border-bottom">
-                <div class="request-icon bg-light rounded-circle me-3">
-                  <i class="bi bi-person text-primary fs-4"></i>
-                </div>
-                <div class="flex-grow-1">
-                  <h5 class="mb-1">Mrs. Smith - Medical Appointment</h5>
-                  <p class="text-muted fs-5 mb-0">Time: Tomorrow 9:00 AM</p>
-                </div>
-                <div class="d-flex gap-2">
-                  <button class="btn btn-outline-primary btn-lg">Accept</button>
-                  <button class="btn btn-outline-danger btn-lg">Decline</button>
-                </div>
-              </div>
-              <div class="service-request d-flex align-items-center p-4">
-                <div class="request-icon bg-light rounded-circle me-3">
-                  <i class="bi bi-person text-primary fs-4"></i>
-                </div>
-                <div class="flex-grow-1">
-                  <h5 class="mb-1">Mr. Johnson - Home Visit</h5>
-                  <p class="text-muted fs-5 mb-0">Time: Saturday 2:00 PM</p>
-                </div>
-                <div class="d-flex gap-2">
-                  <button class="btn btn-outline-primary btn-lg">Accept</button>
-                  <button class="btn btn-outline-danger btn-lg">Decline</button>
-                </div>
+              <div class="card-body">
+                <DataTable
+                  :data="myTasks"
+                  :columns="myTasksColumns"
+                  :filterColumns="myTasksFilterColumns"
+                  @complete-task="completeTask"
+                  @edit-task="editTask"
+                />
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="col-12 col-lg-4">
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 p-4">
-              <h4 class="mb-0">Service Hours</h4>
-            </div>
-            <div class="card-body p-4">
-              <div class="stats-item d-flex align-items-center mb-4">
-                <div class="stats-icon bg-primary text-white rounded-circle me-3">
-                  <i class="bi bi-clock-history fs-4"></i>
-                </div>
-                <div>
-                  <h5 class="mb-1">This Month</h5>
-                  <p class="text-primary fw-bold mb-0 fs-4">24 Hours</p>
-                </div>
-              </div>
-              <div class="stats-item d-flex align-items-center">
-                <div class="stats-icon bg-success text-white rounded-circle me-3">
-                  <i class="bi bi-star fs-4"></i>
-                </div>
-                <div>
-                  <h5 class="mb-1">Service Rating</h5>
-                  <p class="text-success fw-bold mb-0 fs-4">4.8/5.0</p>
-                </div>
-              </div>
-            </div>
+          <div class="sidebar-column">
+            <NotificationPanel v-if="currentUser" :userId="currentUser.id" />
           </div>
         </div>
       </div>
@@ -163,131 +85,556 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
+import taskService from '../services/taskService'
+import volunteerRatingService from '../services/volunteerRatingService'
+import NotificationPanel from '../components/NotificationPanel.vue'
+import DataTable from '../components/DataTable.vue'
+import { db } from '../firebase/config'
+import { doc, getDoc } from 'firebase/firestore'
 
 export default {
   name: 'VolunteerDashboard',
+  components: {
+    NotificationPanel,
+    DataTable
+  },
   setup() {
     const router = useRouter()
+    const toast = useToast()
     const currentUser = ref(null)
-
-    onMounted(() => {
-      const userStr = localStorage.getItem('currentUser')
-      if (userStr) {
-        currentUser.value = JSON.parse(userStr)
-      }
+    const tasks = ref([])
+    const isAccepting = ref(false)
+    const isCompleting = ref(false)
+    const ratingStats = ref({
+      averageRating: 0,
+      totalRatings: 0,
+      ratings: []
     })
 
-    const handleLogout = () => {
+    // Initialize user information
+    const initCurrentUser = () => {
+      try {
+        const userStr = localStorage.getItem('currentUser')
+        if (!userStr) {
+          toast.error('Please login first')
+          router.push('/login')
+          return false
+        }
+        const user = JSON.parse(userStr)
+        if (!user || !user.id || user.role !== 'volunteer') {
+          toast.error('Invalid user information')
+          router.push('/login')
+          return false
+        }
+        currentUser.value = user
+        return true
+      } catch (error) {
+        console.error('Failed to parse user information:', error)
+        toast.error('Invalid user information')
+        router.push('/login')
+        return false
+      }
+    }
+
+    // Filter tasks by status
+    const availableTasks = computed(() => 
+      tasks.value.filter(t => t.status === 'open')
+    )
+
+    const myTasks = computed(() => 
+      tasks.value.filter(t => t.volunteerId === currentUser.value?.id)
+    )
+
+    const completedTasks = computed(() => 
+      myTasks.value.filter(t => t.status === 'completed')
+    )
+
+    const inProgressTasks = computed(() => 
+      myTasks.value.filter(t => t.status === 'in_progress')
+    )
+
+    const averageRating = computed(() => {
+      const ratedTasks = myTasks.value.filter(t => t.rating)
+      if (ratedTasks.length === 0) return 0
+      return ratedTasks.reduce((sum, t) => sum + t.rating, 0) / ratedTasks.length
+    })
+
+    // Available Tasks Table Columns
+    const availableTasksColumns = [
+      { key: 'id', label: 'ID', sortable: true },
+      { key: 'title', label: 'Title', sortable: true },
+      { key: 'type', label: 'Type', sortable: true, formatter: 'TaskTypeFormatter' },
+      { key: 'elderlyName', label: 'Requester', sortable: true },
+      { key: 'deadline', label: 'Accept Deadline', sortable: true, formatter: 'DateTimeFormatter' },
+      { key: 'priority', label: 'Priority', sortable: true, formatter: 'PriorityFormatter' },
+      { key: 'actions', label: 'Actions', sortable: false, formatter: 'AvailableTaskActionsFormatter' }
+    ]
+
+    // Available Tasks Searchable Columns
+    const availableTasksSearchableColumns = [
+      { key: 'id', label: 'ID' },
+      { key: 'title', label: 'Title' },
+      { key: 'type', label: 'Type' },
+      { key: 'elderlyName', label: 'Requester' },
+      { key: 'description', label: 'Description' }
+    ]
+
+    // My Tasks Table Columns
+    const myTasksColumns = [
+      { key: 'id', label: 'ID', sortable: true },
+      { key: 'title', label: 'Title', sortable: true },
+      { key: 'type', label: 'Type', sortable: true, formatter: 'TaskTypeFormatter' },
+      { key: 'status', label: 'Status', sortable: true, formatter: 'StatusFormatter' },
+      { key: 'elderlyName', label: 'Requester', sortable: true },
+      { key: 'deadline', label: 'Completion Deadline', sortable: true, formatter: 'DateTimeFormatter' },
+      { key: 'priority', label: 'Priority', sortable: true, formatter: 'PriorityFormatter' },
+      { key: 'actions', label: 'Actions', sortable: false, formatter: 'MyTaskActionsFormatter' }
+    ]
+
+    // My Tasks Searchable Columns
+    const myTasksSearchableColumns = [
+      { key: 'id', label: 'ID' },
+      { key: 'title', label: 'Title' },
+      { key: 'type', label: 'Type' },
+      { key: 'status', label: 'Status' },
+      { key: 'elderlyName', label: 'Requester' },
+      { key: 'description', label: 'Description' }
+    ]
+
+    // Available Tasks Filter Columns
+    const availableTasksFilterColumns = [
+      { key: 'type', label: 'Task Type' },
+      { key: 'priority', label: 'Priority' },
+      { key: 'elderlyName', label: 'Requester' },
+      { key: 'location', label: 'Location' }
+    ]
+
+    // My Tasks Filter Columns
+    const myTasksFilterColumns = [
+      { key: 'type', label: 'Task Type' },
+      { key: 'status', label: 'Status' },
+      { key: 'priority', label: 'Priority' },
+      { key: 'elderlyName', label: 'Requester' }
+    ]
+
+    const loadTasks = async () => {
+      try {
+        if (!currentUser.value) {
+          console.error('User not initialized');
+          return;
+        }
+
+        // Fetch available tasks (open status)
+        const available = await taskService.getTasksByStatus('open');
+
+        // Fetch tasks already accepted by the current volunteer
+        const myTasksList = await taskService.getTasksByUser(currentUser.value.id, 'volunteer');
+
+        // Combine the lists, ensuring no duplicates.
+        const availableTaskIds = new Set(available.map(t => t.id));
+        const combinedTasks = [...available];
+
+        myTasksList.forEach(task => {
+          if (!availableTaskIds.has(task.id)) {
+            combinedTasks.push(task);
+          }
+        });
+
+        // Enrich tasks with elderly user names if missing
+        const enrichedTasks = await Promise.all(combinedTasks.map(async (task) => {
+          if (!task.elderlyName && task.elderlyId) {
+            try {
+              // Load elderly user data from Firebase
+              const userDoc = await getDoc(doc(db, 'users', task.elderlyId));
+              if (userDoc.exists()) {
+                const userData = userDoc.data();
+                task.elderlyName = userData.displayName || userData.username || 'Unknown User';
+              }
+            } catch (error) {
+              console.error('Failed to load elderly user data:', error);
+              task.elderlyName = 'Unknown User';
+            }
+          }
+          return task;
+        }));
+
+        tasks.value = enrichedTasks;
+
+      } catch (error) {
+        console.error('Failed to load tasks:', error);
+        toast.error('Failed to load tasks');
+      }
+    };
+
+    const loadRatingStats = async () => {
+      try {
+        if (!currentUser.value) return
+        const stats = await volunteerRatingService.getVolunteerRatings(currentUser.value.id)
+        ratingStats.value = stats
+      } catch (error) {
+        console.error('Failed to load rating statistics:', error)
+      }
+    }
+
+    const acceptTask = async (task) => {
+      if (!currentUser.value) return
+      
+      try {
+        isAccepting.value = true
+        await taskService.acceptTask(
+          task.id,
+          currentUser.value.id,
+          currentUser.value.username
+        )
+        toast.success('Task accepted successfully')
+        loadTasks()
+      } catch (error) {
+        console.error('Failed to accept task:', error)
+        toast.error('Failed to accept task')
+      } finally {
+        isAccepting.value = false
+      }
+    }
+
+    const completeTask = async (task) => {
+      try {
+        isCompleting.value = true
+        await taskService.completeTask(task.id)
+        toast.success('Task marked as completed')
+        loadTasks()
+      } catch (error) {
+        console.error('Failed to complete task:', error)
+        toast.error('Failed to complete task')
+      } finally {
+        isCompleting.value = false
+      }
+    }
+
+    const editTask = (task) => {
+      // 志愿者不能编辑任务，只能查看详情
+      toast.info('Task details: ' + task.title)
+      console.log('Task details:', task)
+    }
+
+    const getTypeClass = (type) => {
+      const classes = {
+        shopping: 'bg-info',
+        delivery: 'bg-warning',
+        housework: 'bg-success',
+        companionship: 'bg-primary',
+        other: 'bg-secondary'
+      }
+      return classes[type] || 'bg-secondary'
+    }
+
+    const getStatusBadgeClass = (status) => {
+      const statusMap = {
+        'open': 'bg-warning',
+        'in_progress': 'bg-info',
+        'completed': 'bg-success',
+        'cancelled': 'bg-secondary'
+      }
+      return `badge ${statusMap[status] || 'bg-secondary'}`
+    }
+
+    const getStatusDisplay = (status) => {
+      const statusMap = {
+        'open': 'Open',
+        'in_progress': 'In Progress',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled'
+      }
+      return statusMap[status] || status
+    }
+
+    const formatDateTime = (dateStr) => {
+      if (!dateStr) return '-'
+      const date = new Date(dateStr)
+      return date.toLocaleString()
+    }
+
+    const isUrgent = (deadline) => {
+      const now = new Date()
+      const deadlineDate = new Date(deadline)
+      const hoursDiff = (deadlineDate - now) / (1000 * 60 * 60)
+      return hoursDiff <= 24 && hoursDiff > 0
+    }
+
+    const logout = () => {
       localStorage.removeItem('currentUser')
       router.push('/login')
     }
 
+    onMounted(() => {
+      console.log('VolunteerDashboard mounted')
+      if (initCurrentUser()) {
+        loadTasks()
+        loadRatingStats()
+      }
+    })
+
     return {
+      tasks,
       currentUser,
-      handleLogout
+      availableTasks,
+      myTasks,
+      completedTasks,
+      inProgressTasks,
+      averageRating,
+      ratingStats,
+      availableTasksColumns,
+      availableTasksSearchableColumns,
+      availableTasksFilterColumns,
+      myTasksColumns,
+      myTasksSearchableColumns,
+      myTasksFilterColumns,
+      isAccepting,
+      isCompleting,
+      acceptTask,
+      completeTask,
+      editTask,
+      getTypeClass,
+      getStatusBadgeClass,
+      getStatusDisplay,
+      formatDateTime,
+      logout,
+      isUrgent
     }
   }
 }
 </script>
 
 <style scoped>
-.dashboard-container {
-  min-height: 100vh;
-  background-color: #f8f9fa;
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
 }
 
 .navbar {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.dashboard-content {
-  max-width: 1800px;
-  margin: 0 auto;
-}
-
-.card {
-  transition: transform 0.2s;
-  border-radius: 15px;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-}
-
-.feature-icon {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-}
-
-.request-icon, .stats-icon {
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.service-request {
-  transition: background-color 0.2s;
-}
-
-.service-request:hover {
-  background-color: #f8f9fa;
-}
-
-.btn {
-  padding: 0.8rem 1.5rem;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.btn-outline-primary:hover,
-.btn-outline-success:hover,
-.btn-outline-info:hover {
-  transform: translateX(5px);
-}
-
-.btn-outline-primary,
-.btn-outline-danger {
-  min-width: 120px;
-}
-
-.card-header {
-  background-color: transparent;
-  border-bottom: 2px solid #f0f0f0;
-}
-
-.border-bottom {
-  border-color: #f0f0f0 !important;
-}
-
-.nav-link {
-  padding: 0.8rem 1.2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0.75rem 0;
+  color: white;
+  flex-shrink: 0;
 }
 
 .navbar-brand {
+  color: white;
   font-weight: 600;
 }
 
-.stats-item {
-  padding: 1rem;
-  border-radius: 12px;
-  transition: background-color 0.2s;
+.navbar .container {
+  max-width: 100%;
+  padding: 0 2rem;
 }
 
-.stats-item:hover {
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0; /* Remove padding */
   background-color: #f8f9fa;
 }
 
-@media (min-width: 992px) {
-  .navbar-brand {
+.container-fluid {
+  height: 100%;
+  padding: 0;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem; /* Apply consistent padding here */
+  height: 100%;
+}
+
+.main-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sidebar-column {
+  width: 350px;
+  flex-shrink: 0;
+}
+
+.welcome-banner, .card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card {
+  height: auto;
+}
+
+.welcome-banner {
+  background: #0d6efd;
+  color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.welcome-banner h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.welcome-banner p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.card-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid #eee;
+}
+
+.card-body {
+  /* Removed flex: 1 and overflow: auto */
+}
+
+.table-responsive {
+  /* Removed height: 100% */
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.table {
+  margin: 0;
+  width: 100%;
+}
+
+.table th {
+  background: #f8f9fa;
+  padding: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 2px solid #dee2e6;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #eee;
+}
+
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: #ddd;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.btn-group .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+}
+
+/* Task Details Modal */
+.task-details {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.task-details h6 {
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.task-details p {
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.task-details p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1400px) {
+  .notification-sidebar {
+    width: 300px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .notification-sidebar {
+    width: 100%;
+  }
+
+  .main-content {
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .page-content {
+    padding: 1rem;
+  }
+
+  .welcome-banner {
+    padding: 1.5rem;
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .welcome-banner h2 {
     font-size: 1.5rem;
+  }
+
+  .content-wrapper {
+    gap: 1.5rem;
+  }
+
+  .card-header {
+    padding: 1rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem;
+  }
+
+  .btn-group .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
   }
 }
 </style> 

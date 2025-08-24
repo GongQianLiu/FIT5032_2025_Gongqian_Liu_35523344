@@ -1,0 +1,20 @@
+{
+  "services": [
+    {
+      "id": "1",
+      "title": "Companionship Service",
+      "description": "Regular visits and companionship for seniors",
+      "provider": "volunteer1",
+      "status": "active",
+      "createdAt": "2025-07-26T03:05:20.874Z"
+    },
+    {
+      "id": "2",
+      "title": "Shopping Assistance",
+      "description": "Help with grocery shopping and errands",
+      "provider": "volunteer1",
+      "status": "active",
+      "createdAt": "2025-07-26T03:05:20.876Z"
+    }
+  ]
+}

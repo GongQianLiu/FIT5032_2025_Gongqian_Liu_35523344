@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 用户集合规则
+    match /users/{userId} {
+      // 用户可以读取自己的数据
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // 用户可以更新自己的数据
+      allow update: if request.auth != null && request.auth.uid == userId;
+      // 只有管理员可以删除用户
+      allow delete: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // 任务集合规则
+    match /tasks/{taskId} {
+      // 认证用户可以读取任务
+      allow read: if request.auth != null;
+      // 老年人可以创建任务
+      allow create: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'elderly';
+      // 任务创建者或志愿者可以更新任务
+      allow update: if request.auth != null && (
+        resource.data.elderlyId == request.auth.uid ||
+        resource.data.volunteerId == request.auth.uid ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+      // 只有管理员可以删除任务
+      allow delete: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // 邮件日志集合规则
+    match /email_logs/{logId} {
+      // 只有管理员可以读取邮件日志
+      allow read: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      // 系统可以创建邮件日志
+      allow create: if true;
+    }
+    
+    // 评分集合规则
+    match /ratings/{ratingId} {
+      // 认证用户可以读取评分
+      allow read: if request.auth != null;
+      // 老年人可以创建评分
+      allow create: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'elderly';
+      // 评分创建者可以更新评分
+      allow update: if request.auth != null && 
+        resource.data.elderlyId == request.auth.uid;
+      // 只有管理员可以删除评分
+      allow delete: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // 健康服务集合规则
+    match /health_services/{serviceId} {
+      // 认证用户可以读取健康服务
+      allow read: if request.auth != null;
+      // 只有管理员可以创建、更新、删除健康服务
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // 社区活动集合规则
+    match /community_events/{eventId} {
+      // 认证用户可以读取社区活动
+      allow read: if request.auth != null;
+      // 只有管理员可以创建、更新、删除社区活动
+      allow write: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // 预约集合规则
+    match /appointments/{appointmentId} {
+      // 认证用户可以读取自己的预约
+      allow read: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      // 用户可以创建自己的预约
+      allow create: if request.auth != null && 
+        request.resource.data.userId == request.auth.uid;
+      // 用户可以更新自己的预约
+      allow update: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      // 用户可以删除自己的预约
+      allow delete: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+    
+    // 通知集合规则
+    match /notifications/{notificationId} {
+      // 用户可以读取自己的通知
+      allow read: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+      // 系统可以创建通知
+      allow create: if true;
+      // 用户可以更新自己的通知
+      allow update: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+  }
+}

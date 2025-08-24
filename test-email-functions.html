@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Functions Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Email Functions Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Current User Information</h2>
+        <div id="user-info">Loading...</div>
+        <button onclick="loadUserInfo()">Reload User Info</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Available Users Test</h2>
+        <div id="users-list">Loading...</div>
+        <button onclick="loadUsers()">Load Users</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Email Templates Test</h2>
+        <div id="templates-list">Loading...</div>
+        <button onclick="loadTemplates()">Load Templates</button>
+        <button onclick="testModalOpen()">Test Modal Open</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Inbox Messages Test</h2>
+        <div id="inbox-messages">Loading...</div>
+        <button onclick="loadInboxMessages()">Load Inbox</button>
+    </div>
+
+    <script>
+        // Test functions
+        function loadUserInfo() {
+            const userStr = localStorage.getItem('currentUser');
+            const userInfoDiv = document.getElementById('user-info');
+            
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    userInfoDiv.innerHTML = `
+                        <strong>User ID:</strong> ${user.id}<br>
+                        <strong>Username:</strong> ${user.username}<br>
+                        <strong>Display Name:</strong> ${user.displayName}<br>
+                        <strong>Role:</strong> ${user.role}<br>
+                        <strong>Email:</strong> ${user.email}
+                    `;
+                    userInfoDiv.className = 'success';
+                } catch (error) {
+                    userInfoDiv.innerHTML = `Error parsing user data: ${error.message}`;
+                    userInfoDiv.className = 'error';
+                }
+            } else {
+                userInfoDiv.innerHTML = 'No user found in localStorage. Please login first.';
+                userInfoDiv.className = 'error';
+            }
+        }
+        
+        function loadUsers() {
+            const usersDiv = document.getElementById('users-list');
+            usersDiv.innerHTML = 'Testing user loading...';
+            
+            // This would normally call the service
+            usersDiv.innerHTML = `
+                <p>Mock users that should be available:</p>
+                <ul>
+                    <li>System Administrator (admin)</li>
+                    <li>Dr. Sarah Johnson (dr.johnson)</li>
+                    <li>Mary Smith (mary.smith)</li>
+                    <li>John Doe (john.doe)</li>
+                    <li>Nurse Emily Wilson (nurse.wilson)</li>
+                </ul>
+            `;
+            usersDiv.className = 'success';
+        }
+        
+        function loadTemplates() {
+            const templatesDiv = document.getElementById('templates-list');
+            templatesDiv.innerHTML = `
+                <p>Default templates that should be available:</p>
+                <ul>
+                    <li>Welcome Email</li>
+                    <li>Service Feedback Request</li>
+                    <li>Appointment Reminder</li>
+                    <li>Health Check Follow-up</li>
+                </ul>
+            `;
+            templatesDiv.className = 'success';
+        }
+        
+        function testModalOpen() {
+            alert('Modal test: In the actual app, this should open the template creation modal without black screen.');
+        }
+        
+        function loadInboxMessages() {
+            const inboxDiv = document.getElementById('inbox-messages');
+            const userStr = localStorage.getItem('currentUser');
+            
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                inboxDiv.innerHTML = `
+                    <p>Sample messages for user ${user.displayName || user.username}:</p>
+                    <ul>
+                        <li>Welcome message from System Administrator</li>
+                        <li>Health check reminder from Dr. Johnson</li>
+                        <li>Community event invitation from John Doe</li>
+                    </ul>
+                    <p><em>Note: Messages should be filtered by user ID: ${user.id}</em></p>
+                `;
+                inboxDiv.className = 'success';
+            } else {
+                inboxDiv.innerHTML = 'Please login first to view inbox messages.';
+                inboxDiv.className = 'error';
+            }
+        }
+        
+        // Load initial data
+        window.onload = function() {
+            loadUserInfo();
+            loadUsers();
+            loadTemplates();
+            loadInboxMessages();
+        };
+    </script>
+</body>
+</html>

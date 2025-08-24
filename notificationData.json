@@ -1,0 +1,31 @@
+{
+  "notifications": [
+    {
+      "id": "1753619477934",
+      "userId": "1753580274498",
+      "title": "Task Accepted",
+      "message": "Your task \"I need some help1\" has been accepted by GongQianLiu. Expected completion by 00:31",
+      "type": "task_accepted",
+      "createdAt": "2025-07-27T12:31:17.934Z",
+      "isRead": true
+    },
+    {
+      "id": "1753619505562",
+      "userId": "1753580274498",
+      "title": "Task Completed",
+      "message": "Your task \"I need some help1\" has been completed by GongQianLiu",
+      "type": "task_completed",
+      "createdAt": "2025-07-27T12:31:45.562Z",
+      "isRead": true
+    },
+    {
+      "id": "1753619505563",
+      "userId": "1753184140920",
+      "title": "Task Completed",
+      "message": "You have completed the task \"I need some help1\"",
+      "type": "task_completed",
+      "createdAt": "2025-07-27T12:31:45.563Z",
+      "isRead": false
+    }
+  ]
+}

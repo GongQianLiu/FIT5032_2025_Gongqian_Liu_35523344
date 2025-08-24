@@ -1,7 +1,10 @@
 <template>
   <div class="login-page">
+    <div class="background-container">
+      <div class="overlay"></div>
+    </div>
     <div class="auth-container">
-      <div class="auth-card">
+      <div class="auth-card-wrapper">
         <div class="card-header text-white text-center py-4">
           <h1 class="display-4 fw-bold mb-0">Evergreen Way</h1>
           <p class="mb-0 mt-2 fs-3">Sign In</p>
@@ -14,15 +17,22 @@
                   <i class="bi bi-person-fill fs-3"></i>
                 </span>
                 <input
-                  type="text"
+                  type="email"
                   class="form-control form-control-lg border-start-0 py-3 fs-5"
+                  :class="{ 'is-invalid': v$.username.$error }"
                   id="username"
                   v-model="formData.username"
-                  placeholder="Enter username"
+                  placeholder="Enter email"
                   required
                   :disabled="isLoading"
-                  autocomplete="username"
+                  autocomplete="email"
+                  @blur="v$.username.$touch()"
+                  oninvalid="this.setCustomValidity('Please enter your email')"
+                  oninput="this.setCustomValidity('')"
                 />
+              </div>
+              <div class="invalid-feedback d-block" v-if="v$.username.$error">
+                {{ v$.username.$errors[0].$message }}
               </div>
             </div>
             <div class="mb-5">
@@ -33,13 +43,20 @@
                 <input
                   type="password"
                   class="form-control form-control-lg border-start-0 py-3 fs-5"
+                  :class="{ 'is-invalid': v$.password.$error }"
                   id="password"
                   v-model="formData.password"
                   placeholder="Enter password"
                   required
                   :disabled="isLoading"
                   autocomplete="current-password"
+                  @blur="v$.password.$touch()"
+                  oninvalid="this.setCustomValidity('Please enter your password')"
+                  oninput="this.setCustomValidity('')"
                 />
+              </div>
+              <div class="invalid-feedback d-block" v-if="v$.password.$error">
+                {{ v$.password.$errors[0].$message }}
               </div>
             </div>
             <div class="d-grid gap-2 mb-4">
@@ -60,11 +77,7 @@
               </router-link>
             </div>
             <div class="text-center mt-4 text-muted">
-              <small>Default accounts for testing:</small>
-              <div class="mt-2">
-                <div>Senior: senior1 / 123456</div>
-                <div>Volunteer: volunteer1 / 123456</div>
-              </div>
+              <small>Please register first to create an account</small>
             </div>
           </form>
         </div>
@@ -77,7 +90,9 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
-import userService from '../services/userService'
+import { useVuelidate } from '@vuelidate/core'
+import { required, helpers } from '@vuelidate/validators'
+import firebaseAuth from '../services/firebaseAuth'
 
 export default {
   name: 'Login',
@@ -90,9 +105,17 @@ export default {
     })
     const isLoading = ref(false)
 
+    const rules = {
+      username: { required: helpers.withMessage('Email is required', required) },
+      password: { required: helpers.withMessage('Password is required', required) }
+    }
+
+    const v$ = useVuelidate(rules, formData)
+
     const handleLogin = async () => {
-      if (!formData.value.username || !formData.value.password) {
-        toast.error("Please fill in all fields", {
+      const isFormCorrect = await v$.value.$validate()
+      if (!isFormCorrect) {
+        toast.error("Please fill in all required fields", {
           timeout: 2000
         })
         return
@@ -100,39 +123,38 @@ export default {
 
       try {
         isLoading.value = true
-        const user = await userService.validateUser(formData.value.username, formData.value.password)
-
-        if (!user) {
-          toast.error("Invalid username or password", {
-            timeout: 2000
-          })
-          return
-        }
-
-        // 存储当前用户信息
-        localStorage.setItem('currentUser', JSON.stringify(user))
+        const user = await firebaseAuth.login(formData.value.username, formData.value.password)
+        console.log('Login response:', user)
         
-        // 清除表单
-        formData.value = {
-          username: '',
-          password: ''
+        // Store user information
+        const userToStore = {
+          ...user,
+          id: user.id
         }
-
+        console.log('Storing user:', userToStore)
+        localStorage.setItem('currentUser', JSON.stringify(userToStore))
+        
         toast.success("Login successful!", {
           timeout: 1500
         })
+
+        // Navigate based on user role to home page
+        let route;
+        if (user.role === 'volunteer') {
+          route = '/volunteer-home';
+        } else if (user.role === 'admin') {
+          route = '/admin-home';
+        } else {
+          route = '/elderly-home';
+        }
+        console.log('Navigating to:', route)
+        await router.push(route)
         
-        // 短暂延迟后跳转，让用户看到成功提示
-        setTimeout(() => {
-          if (user.role === 'elderly') {
-            router.push('/elderly-dashboard')
-          } else {
-            router.push('/volunteer-dashboard')
-          }
-        }, 1000)
+        // Clear form data
+        formData.value = { username: '', password: '' }
       } catch (error) {
         console.error('Login error:', error)
-        toast.error("Login failed. Please try again.", {
+        toast.error(error.message || "Login failed. Please try again.", {
           timeout: 2000
         })
       } finally {
@@ -142,18 +164,24 @@ export default {
 
     return {
       formData,
-      handleLogin,
-      isLoading
+      v$,
+      isLoading,
+      handleLogin
     }
   }
 }
 </script>
 
 <style scoped>
+/*
+  Final Stable Version:
+  Applying the same stable styles as Register.vue.
+  Permanently removed performance-intensive properties like `backdrop-filter`
+  and interactive transforms/animations to guarantee stability.
+*/
 .login-page {
-  background: linear-gradient(135deg, #6B8DD6 0%, #8E37D7 100%);
   min-height: 100vh;
-  min-width: 100vw;
+  width: 100vw;
   margin: 0;
   padding: 0;
   display: flex;
@@ -164,137 +192,166 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: hidden;
+}
+
+.background-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/src/assets/images/EbBmoVDxYK.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 2;
 }
 
 .auth-container {
-  width: min(90%, 1400px);
-  margin: auto;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.4);
   padding: 2rem;
+  z-index: 3;
+  box-shadow: 
+    inset 0 0 50px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(0, 0, 0, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.auth-card {
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 25px;
-  overflow: hidden;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+.auth-card-wrapper {
   width: 100%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.1),
+    0 1px 8px rgba(0, 0, 0, 0.2);
   margin: 0 auto;
-  position: relative;
 }
 
 .card-header {
-  position: relative;
-  padding: 3rem 2rem;
-  background: linear-gradient(135deg, #4A90E2 0%, #8E37D7 100%);
+  background: linear-gradient(135deg, #B87E5F 0%, #DEB19F 100%);
+  color: white;
+  border-radius: 20px 20px 0 0;
+  border: none;
+  padding: 2rem;
+  text-align: center;
 }
 
-.card-header::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
-  background-color: #fff;
-  border-radius: 2px;
+.card-header h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 600;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card-header p {
+  margin: 1rem 0 0;
+  font-size: 1.5rem;
+  opacity: 0.9;
 }
 
 .card-body {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 3rem 2rem !important;
+  padding: 3rem;
+}
+
+.input-group {
+  margin-bottom: 2rem;
 }
 
 .input-group-text {
-  border-radius: 15px 0 0 15px;
-  width: 65px;
-  justify-content: center;
-  background-color: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-right: none;
+  border: none;
+  background: rgba(107, 115, 255, 0.1);
+  padding: 0.75rem 1.25rem;
+  color: #6B73FF;
 }
 
 .form-control {
-  border-radius: 0 15px 15px 0;
-  padding: 1.5rem 1.2rem;
-  font-size: 1.2rem;
-  height: auto;
   border: 2px solid #e9ecef;
-  border-left: none;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .form-control:focus {
-  box-shadow: none;
-  border-color: #8E37D7;
+  border-color: #B87E5F;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #4A90E2 0%, #8E37D7 100%);
+  background: linear-gradient(135deg, #B87E5F 0%, #DEB19F 100%);
   border: none;
-  border-radius: 15px;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-  padding: 1rem 2rem;
+  transition: background-color 0.3s ease;
+  width: 100%;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(142, 55, 215, 0.4);
+.btn-primary:disabled {
+  background: #6c757d;
 }
 
-.router-link-active {
-  color: #8E37D7;
+.text-decoration-none {
+  color: #6B73FF;
+  transition: color 0.3s ease;
+  position: relative;
+  font-size: 1.1rem;
+  display: block;
+  text-align: center;
+  margin-top: 1.5rem;
 }
 
-a {
-  color: #6B8DD6;
-  transition: all 0.3s ease;
+.text-decoration-none::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #000DFF;
+  transition: width 0.3s ease;
 }
 
-a:hover {
-  color: #8E37D7;
+.text-decoration-none:hover::after {
+  width: 100%;
 }
 
-/* 响应式设计 */
-@media (max-width: 576px) {
-  .auth-container {
-    width: 95%;
-    padding: 1rem;
-  }
-
-  .card-header {
-    padding: 2rem 1rem;
-  }
-
-  .card-body {
-    padding: 2rem 1.5rem !important;
-  }
+.text-center {
+  text-align: center;
 }
 
-@media (min-width: 577px) and (max-width: 991px) {
-  .auth-card {
-    max-width: 90%;
-  }
+.text-muted {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-top: 2rem;
 }
 
-@media (min-width: 992px) {
-  .auth-card {
-    max-width: 80%;
-  }
-}
-
-@media (min-width: 1200px) {
-  .auth-card {
-    max-width: 70%;
-  }
-}
-
-@media (min-width: 1400px) {
-  .auth-card {
-    max-width: 60%;
-  }
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #dc3545;
 }
 </style> 
  
