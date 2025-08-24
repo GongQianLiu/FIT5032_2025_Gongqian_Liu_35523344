@@ -61,6 +61,16 @@ export const API_CONFIG = {
     ENABLED: false // Disabled due to 401 errors
   },
 
+  // Google Gemini AI Service (Disabled - no API key)
+  GEMINI: {
+    API_KEY: '', // No API key provided
+    API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+    MODEL: 'gemini-pro',
+    MAX_TOKENS: 1500,
+    TEMPERATURE: 0.7,
+    ENABLED: false // Disabled - no API key
+  },
+
   // Mapbox Service - Better English support and POI recognition
   MAPBOX: {
     // Free Mapbox access token (public token for demo)

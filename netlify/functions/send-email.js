@@ -48,7 +48,7 @@ exports.handler = async (event, context) => {
     }
 
     // Initialize Postmark client
-    const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
+    const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
     // Prepare email data
     const emailData = {

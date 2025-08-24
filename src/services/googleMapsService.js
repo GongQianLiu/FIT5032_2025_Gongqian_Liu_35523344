@@ -15,8 +15,15 @@ class OpenStreetMapService {
   // Initialize OpenStreetMap
   async initialize(containerId) {
     try {
+      console.log('🗺️ Initializing OpenStreetMap...');
+      console.log('🔧 API_CONFIG:', API_CONFIG);
+      console.log('🔧 OPENSTREETMAP config:', API_CONFIG.OPENSTREETMAP);
+
       const status = checkAPIServiceStatus();
-      if (!status.openstreetmap.ready) {
+      console.log('📊 API Status:', status);
+      console.log('🗺️ OpenStreetMap status:', status.openstreetmap);
+
+      if (!status.openstreetmap || !status.openstreetmap.ready) {
         throw new Error(API_ERROR_MESSAGES.OPENSTREETMAP.NOT_CONFIGURED);
       }
 

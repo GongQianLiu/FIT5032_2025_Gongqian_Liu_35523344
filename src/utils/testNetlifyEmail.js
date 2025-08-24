@@ -6,12 +6,12 @@ export const testNetlifyEmail = async () => {
     console.log('📧 Note: Internal emails still use Firebase directly')
 
     const testEmailData = {
-      to: 'test@example.com',
+      to: 'test@student.monash.edu', // 使用相同域名进行测试
       subject: 'Test External Email from Netlify Functions',
       content: 'This is a test EXTERNAL email to verify that Netlify Functions are working correctly with Postmark for external email delivery.',
       senderInfo: {
         name: 'Test User',
-        email: 'noreply@evergreenway.com'
+        email: 'noreply@student.monash.edu' // 确保发件人域名一致
       }
     }
 
