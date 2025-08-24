@@ -175,11 +175,12 @@
                     <i class="bi bi-calendar-x"></i>
                     Appointments can only be booked within the next 7 days.
                   </div>
-                  <div v-else class="alert alert-info">
-                    <i class="bi bi-info-circle"></i>
-                    Selected date: {{ selectedDate.toLocaleDateString() }} - Click a service to book an appointment.
-                  </div>
-                 <div v-else class="quick-appointments">
+                  <div v-else>
+                    <div class="alert alert-info">
+                      <i class="bi bi-info-circle"></i>
+                      Selected date: {{ selectedDate.toLocaleDateString() }} - Click a service to book an appointment.
+                    </div>
+                    <div class="quick-appointments">
                   <button 
                     v-for="service in quickServices" 
                     :key="service.id"
@@ -191,6 +192,7 @@
                     {{ service.name }}
                   </button>
                 </div>
+                  </div>
               </div>
             </div>
 
