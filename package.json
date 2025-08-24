@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@vitejs/plugin-vue": "^6.0.0",
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
-    "@vitejs/plugin-vue": "^6.0.0",
     "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",
     "firebase": "^10.14.1",
