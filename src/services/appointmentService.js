@@ -67,16 +67,20 @@ export const getAppointmentsByDate = async (userId, date) => {
 // Get all appointments for a specific date and time (for conflict checking)
 export const getAppointmentsByDateTime = async (date, time) => {
   try {
+    // 简化查询以避免复合索引要求
     const q = query(
       collection(db, 'appointments'),
       where('date', '==', date),
-      where('time', '==', time),
-      where('status', '!=', 'cancelled')
+      where('time', '==', time)
     );
     const querySnapshot = await getDocs(q);
     const appointments = [];
     querySnapshot.forEach((doc) => {
-      appointments.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      // 在客户端过滤掉已取消的预约
+      if (data.status !== 'cancelled') {
+        appointments.push({ id: doc.id, ...data });
+      }
     });
     return appointments;
   } catch (error) {
