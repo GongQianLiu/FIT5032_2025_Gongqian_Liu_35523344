@@ -254,11 +254,13 @@ export { appointmentTypes };
 export default {
   getAppointmentsByUser,
   getAppointmentsByDate,
+  getAppointmentsByDateTime,
   createAppointment,
   updateAppointment,
   deleteAppointment,
   getAppointmentById,
   searchAppointments,
   getAppointmentStatistics,
+  checkTimeSlotAvailability,
   appointmentTypes
 };
